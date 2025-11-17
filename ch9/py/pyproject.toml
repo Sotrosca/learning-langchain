@@ -5,7 +5,7 @@ description = "A RAG agentin LangGraph."
 authors = []
 license = { text = "MIT" }
 readme = "README.md"
-requires-python = ">=3.9,<4.0"
+requires-python = ">=3.10,<4.0"
 dependencies = [
     "langgraph>=0.2.6",
     "langchain-openai>=0.1.22",
@@ -15,7 +15,9 @@ dependencies = [
     "langchain-community>=0.3.15",
     "supabase (>=2.13.0,<3.0.0)",
     "langchain-chroma>=0.2.0",
-    "langgraph-sdk>=0.1.51"
+    "langgraph-sdk>=0.1.51",
+    "langchain-ollama (>=1.0.0,<2.0.0)",
+    "langchainhub (>=0.1.21,<0.2.0)"
 ]
 
 [project.optional-dependencies]
@@ -28,12 +30,11 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools]
 packages = ["retrieval_graph", "ingestion_graph", "shared"]
 [tool.setuptools.package-dir]
-"langgraph.templates.retrieval_graph" = "src/retrieval_graph"
-"langgraph.templates.ingestion_graph" = "src/ingestion_graph"
-"retrieval_graph" = "src/retrieval_graph"
-"ingestion_graph" = "src/ingestion_graph"
-"shared" = "src/shared"
-
+"langgraph.templates.retrieval_graph" = "src\\retrieval_graph"
+"langgraph.templates.ingestion_graph" = "src\\ingestion_graph"
+"retrieval_graph" = "src\\retrieval_graph"
+"ingestion_graph" = "src\\ingestion_graph"
+"shared" = "src\\shared"
 
 [tool.setuptools.package-data]
 "*" = ["py.typed"]

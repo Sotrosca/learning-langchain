@@ -103,3 +103,6 @@ logs/
 
 # Jest coverage
 coverage/
+/.langgraph_api
+/ch9/py/.langgraph_api
+/ch9/py/chroma_server_db

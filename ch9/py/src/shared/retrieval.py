@@ -1,16 +1,13 @@
-from contextlib import contextmanager
 import os
+from contextlib import contextmanager
+
+import chromadb
+from ingestion_graph.configuration import IndexConfiguration
 from langchain_chroma import Chroma
+from langchain_community.vectorstores import SupabaseVectorStore
 from langchain_core.embeddings import Embeddings
 from langchain_core.runnables import RunnableConfig
-from langchain_openai import OpenAIEmbeddings
-from langchain_community.vectorstores import SupabaseVectorStore
-from langchain_chroma import Chroma
 from supabase import create_client
-import chromadb
-
-
-from ingestion_graph.configuration import IndexConfiguration
 
 
 def make_text_encoder(model: str) -> Embeddings:
@@ -18,7 +15,12 @@ def make_text_encoder(model: str) -> Embeddings:
     provider, model = model.split("/", maxsplit=1)
     if provider == "openai":
         from langchain_openai import OpenAIEmbeddings
+
         return OpenAIEmbeddings(model=model)
+    elif provider == "ollama":
+        from langchain_ollama import OllamaEmbeddings
+
+        return OllamaEmbeddings(model=model)
     else:
         raise ValueError(f"Unsupported embedding provider: {provider}")
 
@@ -30,26 +32,31 @@ def make_supabase_retriever(configuration: RunnableConfig, embedding_model: Embe
 
     if not supabase_url or not supabase_key:
         raise ValueError(
-            "Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env variables")
+            "Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env variables"
+        )
 
     client = create_client(supabase_url, supabase_key)
     vectorstore = SupabaseVectorStore(
-        client=client, embedding=embedding_model, table_name="documents", query_name="match_documents")
+        client=client,
+        embedding=embedding_model,
+        table_name="documents",
+        query_name="match_documents",
+    )
     search_kwargs = configuration.search_kwargs
     yield vectorstore.as_retriever(search_kwargs=search_kwargs)
 
 
 @contextmanager
-def make_chroma_retriever(configuration: IndexConfiguration, embedding_model: Embeddings):
-    client = chromadb.HttpClient(host='localhost', port=8000)
+def make_chroma_retriever(
+    configuration: IndexConfiguration, embedding_model: Embeddings
+):
+    client = chromadb.HttpClient(host="localhost", port=8000)
 
     vectorstore = Chroma(
-        collection_name="documents",
-        embedding_function=embedding_model,
-        client=client
+        collection_name="documents", embedding_function=embedding_model, client=client
     )
     search_kwargs = configuration.search_kwargs
-    search_filter = search_kwargs.setdefault("filter", {})
+    search_filter = search_kwargs.setdefault("filter", None)
     yield vectorstore.as_retriever(search_kwargs=search_kwargs)
 
 
@@ -60,6 +67,8 @@ def make_retriever(
     """Create a retriever for the agent, based on the current configuration."""
     configuration = IndexConfiguration.from_runnable_config(config)
     embedding_model = make_text_encoder(configuration.embedding_model)
+    print(f"Configuration: {configuration}")
+    print(f"Using retriever provider: {configuration.retriever_provider}")
     if configuration.retriever_provider == "supabase":
         with make_supabase_retriever(configuration, embedding_model) as retriever:
             yield retriever
@@ -69,6 +78,6 @@ def make_retriever(
     else:
         raise ValueError(
             "Unrecognized retriever_provider in configuration. "
-            f"Expected one of: {', '.join(Configuration.__annotations__['retriever_provider'].__args__)}\n"
+            f"Expected one of: {', '.join(configuration.__annotations__['retriever_provider'].__args__)}\n"
             f"Got: {configuration.retriever_provider}"
         )

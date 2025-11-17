@@ -14,7 +14,7 @@ class Configuration(BaseConfiguration):
     """The configuration for the agent."""
 
     query_model: Annotated[str, {"__template_metadata__": {"kind": "llm"}}] = field(
-        default="openai/gpt-4o",
+        default="ollama/gpt-oss:120b-cloud",
         metadata={
             "description": "The language model used for processing and refining queries. Should be in the form: provider/model-name."
         },

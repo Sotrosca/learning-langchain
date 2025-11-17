@@ -5,7 +5,7 @@ description = "Code blocks for the book Learning LangChain."
 authors = []
 license = { text = "MIT" }
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "langgraph>=0.2.6",
     "langchain-openai>=0.1.22",
@@ -34,5 +34,3 @@ packages = []
 [tool.setuptools.package-data]
 "*" = ["py.typed"]
 
-[project.scripts]
-langgraph-dev = "langgraph.cli:dev_command --config ch9/py/langgraph.json --verbose"

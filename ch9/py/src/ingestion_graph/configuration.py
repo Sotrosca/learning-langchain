@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, fields
-from typing import Annotated, Literal, Optional, Type, TypeVar, Any
-from langchain_core.runnables import RunnableConfig, ensure_config
+from typing import Annotated, Any, Literal, Optional, Type, TypeVar
 
+from langchain_core.runnables import RunnableConfig, ensure_config
 
 DEFAULT_DOCS_FILE = "src/docSplits.json"
 
@@ -29,7 +29,7 @@ class IndexConfiguration:
         str,
         {"__template_metadata__": {"kind": "embeddings"}},
     ] = field(
-        default="openai/text-embedding-3-small",
+        default="ollama/nomic-embed-text",
         metadata={
             "description": "Name of the embedding model to use. Must be a valid embedding model name."
         },
